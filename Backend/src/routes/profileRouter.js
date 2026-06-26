@@ -15,7 +15,10 @@ profileRouter.get("/profile/view", UserAuth, async (req, res) => {
     }
     res.json({ user });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    rres.status(400).json({
+  success:false,
+  message:err.message
+})
   }
 });
 // profile/edit
@@ -34,7 +37,10 @@ profileRouter.post("/profile/edit", UserAuth, async (req, res) => {
       user: loggedInUser,
     });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({
+  success:false,
+  message:err.message
+})
   }
 });
 
@@ -56,7 +62,10 @@ profileRouter.post("/profile/password-change", UserAuth, async (req, res) => {
     await user.save();
     res.json({ message: "password changed successfully" });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+   res.status(400).json({
+  success:false,
+  message:err.message
+})
   }
 });
 

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const express = require("express");
 const { UserAuth } = require("../middleware/auth");
 const ConnectionRequestModel = require("../models/connection");
@@ -14,6 +15,12 @@ requestRouter.post(
       const toUserId = req.params.toUserId;
       const status = req.params.status;
 
+      if (!mongoose.Types.ObjectId.isValid(toUserId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid User ID",
+        });
+      }
       // validation for status
       const isAllowed = ["interested", "ignore"];
       if (!isAllowed.includes(status)) {
@@ -38,9 +45,9 @@ requestRouter.post(
       }
       // checking if the toUserId is present in database or not
       const toUser = await UserModel.findById(toUserId);
-        if (!toUser) { 
-            return res.status(400).json({ error: "user not found" });
-        }
+      if (!toUser) {
+        return res.status(400).json({ error: "user not found" });
+      }
       const connectionRequest = new ConnectionRequestModel({
         fromUserId,
         toUserId,
@@ -50,7 +57,10 @@ requestRouter.post(
       const data = await connectionRequest.save();
       res.json({ message: "request sent successfully", data });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({
+        success: false,
+        message: err.message,
+      });
     }
   },
 );
@@ -61,23 +71,28 @@ requestRouter.post(
   UserAuth,
   async (req, res) => {
     try {
-         // mahesh => kittu 
-        // kittu accept kregi 
-        // logged in user => kittu( toUserId)
-        // status = interested tabhi ye hoga 
-        // kittu request me agar accept ya reject hi kregi 
-        // kiitu ko jo request aaya vo requestId(ye requestId user ki nhi h connection request) valid honi chahiye 
+      // mahesh => kittu
+      // kittu accept kregi
+      // logged in user => kittu( toUserId)
+      // status = interested tabhi ye hoga
+      // kittu request me agar accept ya reject hi kregi
+      // kiitu ko jo request aaya vo requestId(ye requestId user ki nhi h connection request) valid honi chahiye
 
       const loggedInUser = req.user;
       const { status, requestId } = req.params;
-
-        // validation for status just accept or reject
+      if (!mongoose.Types.ObjectId.isValid(requestId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid Request ID",
+        });
+      }
+      // validation for status just accept or reject
 
       const isAllowed = ["accepted", "rejected"];
       if (!isAllowed.includes(status)) {
         return res.status(400).json({ error: "invalid status" });
       }
-        // checking if the requestId is valid or not
+      // checking if the requestId is valid or not
 
       const request = await ConnectionRequestModel.findOne({
         _id: requestId,
@@ -96,11 +111,12 @@ requestRouter.post(
         message: `Request ${status} successfully`,
       });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({
+        success: false,
+        message: err.message,
+      });
     }
-  }
+  },
 );
-
-
 
 module.exports = requestRouter;

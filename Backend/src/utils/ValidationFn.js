@@ -22,8 +22,16 @@ const ValidationFn = (req) => {
   // }  ye age vala validation db level pr bhi kr rakha h waha se hi error throw ho jayega
 };
 const validateProfileEdit = (req) => {
-  const allowedFields = ["lastName", "email", "skills", "age", "about"];
-
+  const allowedFields = [
+  "firstName",
+  "lastName",
+  "email",
+  "skills",
+  "age",
+  "gender",
+  "about",
+  "photoURL",
+];
   const fields = Object.keys(req.body || {});
   if (fields.length === 0) {
     throw new Error("No fields provided for update");

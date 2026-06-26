@@ -1,3 +1,5 @@
+const dotenv = require("dotenv")
+dotenv.config();
 const UserModel = require("../models/user");
 const jwt = require("jsonwebtoken");
 // code to authenticate
@@ -5,9 +7,9 @@ const UserAuth = async (req, res, next) => {
   try {
     const token = req.cookies.token;
     if (!token) {
-      throw new Error("invalid token or token not found");
+      return res.status(401).send("please login !" );
     }
-    const decodedObj = await jwt.verify(token, "Hare Krishna");
+    const decodedObj = await jwt.verify(token, process.env.JWT_SECRET);
     const { id } = decodedObj;
     const user = await UserModel.findById(id);
     if (!user) {

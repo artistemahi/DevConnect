@@ -4,7 +4,7 @@ const { UserAuth } = require("../middleware/auth");
 const ConnectionRequestModel = require("../models/connection.js");
 const UserModel = require("../models/user.js");
 
-const USER_SAFE_FIELDS = "firstName lastName skillls photoURL about";
+const USER_SAFE_FIELDS = "firstName lastName age gender photoURL skills about ";
 // Get all the pending friend requests for the loggedIn user
 userRouter.get("/user/requests/received", UserAuth, async (req, res) => {
   try {
@@ -13,13 +13,16 @@ userRouter.get("/user/requests/received", UserAuth, async (req, res) => {
     const ConnectionRequestData = await ConnectionRequestModel.find({
       toUserId: loggedInUser._id,
       status: "interested",
-    }).populate("fromUserId", "firstName lastName photoURL about");
+    }).populate("fromUserId",USER_SAFE_FIELDS);
     res.json({
       message: "Data fetched successfully",
       data: ConnectionRequestData,
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+   res.status(400).json({
+  success:false,
+  message:err.message
+})
   }
 });
 
@@ -47,7 +50,10 @@ userRouter.get("/user/connections", UserAuth, async (req, res) => {
       data: data,
     });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+   res.status(400).json({
+  success:false,
+  message:err.message
+})
   }
 });
 
@@ -73,9 +79,9 @@ userRouter.get("/user/feed", UserAuth, async (req, res) => {
 
     // console.log(connections);
     const hideUserFromfeed = new Set();
-    connections.forEach((req) => {
-      hideUserFromfeed.add(req.fromUserId._id.toString());
-      hideUserFromfeed.add(req.toUserId._id.toString());
+    connections.forEach((connection) => {
+      hideUserFromfeed.add(connection.fromUserId.toString());
+      hideUserFromfeed.add(connection.toUserId.toString());
     });
     const user = await UserModel.find({
       $and: [
@@ -94,8 +100,9 @@ userRouter.get("/user/feed", UserAuth, async (req, res) => {
     });
   } catch (err) {
     res.status(400).json({
-      message: err.message,
-    });
+  success:false,
+  message:err.message
+})
   }
 });
 module.exports = userRouter;
