@@ -15,7 +15,7 @@ profileRouter.get("/profile/view", UserAuth, async (req, res) => {
     }
     res.json({ user });
   } catch (err) {
-    rres.status(400).json({
+    res.status(400).json({
   success:false,
   message:err.message
 })
@@ -47,7 +47,7 @@ profileRouter.post("/profile/edit", UserAuth, async (req, res) => {
 // profile/password-change
 profileRouter.post("/profile/password-change", UserAuth, async (req, res) => {
   try {
-    const user = req.user;
+    const user = await UserModel.findById(req.user._id).select("+password");
     const { oldPassword, newPassword } = req.body;
     const hashedPassword = user.password;
     const isMatch = await bcrypt.compare(oldPassword, hashedPassword);
@@ -62,11 +62,10 @@ profileRouter.post("/profile/password-change", UserAuth, async (req, res) => {
     await user.save();
     res.json({ message: "password changed successfully" });
   } catch (err) {
-   res.status(400).json({
-  success:false,
-  message:err.message
-})
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 });
-
 module.exports = { profileRouter };

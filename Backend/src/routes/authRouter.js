@@ -34,8 +34,8 @@ authRouter.post("/signup", async (req, res) => {
     // cookie
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax",
-      secure: false, // true only in https
+      sameSite: "none",
+      secure: true, // true only in https
     });
 
     res.json({ message: "user signed up successfully", data: savedUser });
