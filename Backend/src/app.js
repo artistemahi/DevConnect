@@ -1,52 +1,63 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const helmet = require("helmet")
-const cors = require("cors");
+
 const express = require("express");
-const connectDB = require("./config/database");
-const app = express();
+const cors = require("cors");
+const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
-const UserModel = require("./models/user");
-// cors enabling for all requests
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  })
-);
-app.use(express.json());
-app.use(cookieParser());
-app.use(helmet())
+
+const connectDB = require("./config/database");
 
 const authRouter = require("./routes/authRouter");
 const { profileRouter } = require("./routes/profileRouter");
 const requestRouter = require("./routes/requestRouter");
 const userRouter = require("./routes/userRouter");
 
+const app = express();
+
+// Middlewares
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }),
+);
+
+app.use(express.json());
+app.use(cookieParser());
+app.use(helmet());
+
+// Routes
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
-});
+
+// Health Check
 app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "Server is running",
   });
 });
+
+// 404 Route (Always Last)
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
+});
+
+// Database Connection
 connectDB()
   .then(() => {
-    console.log("connected to database");
+    console.log("Connected to database");
 
     app.listen(process.env.PORT, () => {
-      console.log("server started at port 3000...");
+      console.log(`Server started on port ${process.env.PORT}`);
     });
   })
   .catch((err) => {
-    console.log("error connecting to database", err);
+    console.error("Error connecting to database:", err);
   });
