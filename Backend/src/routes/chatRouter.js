@@ -14,23 +14,29 @@ chatRouter.get("/conversations", UserAuth, async (req, res) => {
       .populate("participants", "firstName lastName photoURL")
       .sort({ updatedAt: -1 });
 
-    const conversations = chats.map((chat) => {
-      // Find the other user
-      const otherUser = chat.participants.find(
-        (user) => user._id.toString() !== loggedInUserId.toString()
-      );
+const conversations = chats.map((chat) => {
+  const otherUser = chat.participants.find(
+    (user) => user._id.toString() !== loggedInUserId.toString()
+  );
 
-      const lastMessage =
-        chat.messages.length > 0
-          ? chat.messages[chat.messages.length - 1].text
-          : "";
+  const lastMessage =
+    chat.messages.length > 0
+      ? chat.messages[chat.messages.length - 1].text
+      : "";
 
-      return {
-        user: otherUser,
-        lastMessage,
-        updatedAt: chat.updatedAt,
-      };
-    });
+  const unreadCount = chat.messages.filter(
+    (message) =>
+      message.sender.toString() !== loggedInUserId.toString() &&
+      !message.isRead
+  ).length;
+
+  return {
+    user: otherUser,
+    lastMessage,
+    updatedAt: chat.updatedAt,
+    unreadCount,
+  };
+});
 
     res.json(conversations);
   } catch (err) {

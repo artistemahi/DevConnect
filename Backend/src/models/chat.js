@@ -4,7 +4,7 @@ const messageSchema = new mongoose.Schema(
   {
     sender: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "user",
       required: true,
     },
     text: {
@@ -16,7 +16,10 @@ const messageSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-
+     isRead: {
+      type: Boolean,
+      default: false,
+    },
     deliveredAt: {
       type: Date,
       default: null,
@@ -32,7 +35,7 @@ const chatSchema = new mongoose.Schema(
         participants: [
             {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
+                ref: "user",
                 required: true,
             },
         ],

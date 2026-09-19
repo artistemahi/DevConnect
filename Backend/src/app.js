@@ -34,7 +34,7 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
-app.use("/", chatRouter);
+app.use("/chat", chatRouter);
 
 // Health Check
 app.get("/health", (req, res) => {
