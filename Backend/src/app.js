@@ -7,14 +7,16 @@ const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 
 const connectDB = require("./config/database");
-
+const chatRouter = require("./routes/chatRouter");
 const authRouter = require("./routes/authRouter");
 const { profileRouter } = require("./routes/profileRouter");
 const requestRouter = require("./routes/requestRouter");
 const userRouter = require("./routes/userRouter");
-
+const initializeSocket = require("./utils/socket");
 const app = express();
-
+const http = require("http");
+const server = http.createServer(app);
+initializeSocket(server);
 // Middlewares
 app.use(
   cors({
@@ -32,6 +34,7 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/", chatRouter);
 
 // Health Check
 app.get("/health", (req, res) => {
@@ -54,7 +57,7 @@ connectDB()
   .then(() => {
     console.log("Connected to database");
 
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log(`Server started on port ${process.env.PORT}`);
     });
   })
